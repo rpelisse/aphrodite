@@ -46,6 +46,7 @@ public class AphroditeConfig {
     private final List<IssueTrackerConfig> issueTrackerConfigs;
     private final List<RepositoryConfig> repositoryConfigs;
     private final List<StreamConfig> streamConfigs;
+    private int threadCount;
 
     static class DefaultThreadFactory implements ThreadFactory {
         private static final AtomicInteger poolNumber = new AtomicInteger(1);
@@ -116,6 +117,12 @@ public class AphroditeConfig {
     }
 
 
+    public AphroditeConfig(List<IssueTrackerConfig> issueTrackerConfigs, List<RepositoryConfig> repositoryConfigs,
+            List<StreamConfig> streamConfigs, int maxThreadCount) {
+        this(Executors.newScheduledThreadPool(3, new DefaultThreadFactory()), issueTrackerConfigs, repositoryConfigs, streamConfigs);
+        this.threadCount = maxThreadCount;
+    }
+
     public ScheduledExecutorService getExecutorService() {
         return executorService;
     }
@@ -132,6 +139,14 @@ public class AphroditeConfig {
         return streamConfigs;
     }
 
+    public int getThreadCount() {
+        return threadCount;
+    }
+
+    public void setThreadCount(int threadCount) {
+        this.threadCount = threadCount;
+    }
+
     public static AphroditeConfig fromJson(JsonObject jsonObject) {
         int maxThreadCount = jsonObject.getInt("maxThreadCount", 0);
 
@@ -144,7 +159,7 @@ public class AphroditeConfig {
                     repositoryConfigs, streamConfigs);
 
         // IF maxThreadCount has not been specified, then we refer to the default executorService which is an unlimited cachedThreadPool
-        return new AphroditeConfig(issueTrackerConfigs, repositoryConfigs, streamConfigs);
+        return new AphroditeConfig(issueTrackerConfigs, repositoryConfigs, streamConfigs, maxThreadCount);
     }
 
     private static List<IssueTrackerConfig> getIssueTrackerConfigs(JsonObject jsonObject) {

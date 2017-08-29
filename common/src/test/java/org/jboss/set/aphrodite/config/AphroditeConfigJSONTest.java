@@ -69,12 +69,14 @@ public class AphroditeConfigJSONTest {
     public void issueTrackerValidJSONTest() {
 
         AphroditeConfig result = AphroditeConfig.fromJson(jr.readObject());
+        assertEquals("Max thread count invalid", result.getThreadCount(), 10);
         assertNotNull("cannot create configuration from valid JSON file", result);
         assertNotNull("error reading issue config from valid JSON file", result.getIssueTrackerConfigs());
         assertNotNull("error reading issue config from valid JSON file", result.getIssueTrackerConfigs().get(0));
 
         IssueTrackerConfig issueConfig = result.getIssueTrackerConfigs().get(0);
         assertDeepEqualsIssueConfig(jiraConfig, issueConfig);
+
     }
 
     @Test
